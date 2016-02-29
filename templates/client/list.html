@@ -1,0 +1,223 @@
+{% extends "layouts/sidebar.html" %}
+
+{% block head %}
+<link href="/static/vendors/datepicker/css/datepicker.css" rel="stylesheet" />
+{% endblock %}
+
+{% block title %}客户列表{% endblock %}
+{% block subtitle %}客户列表{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+	<div class="row-fluid">
+		<div class="span12">
+			<ul class="breadcrumb">
+				<li class="active">
+					<a href="/client/">客户列表</a><span class="divider">/<a href="/client/edit/">创建客户</a><span class="divider"></span>
+				</li>
+			</ul>
+			<div class="widget">
+				<div class="widget-title">
+					<h3>客户列表</h3>
+				</div>
+                <div class="widget-body">
+                    <div id="filter_div" class="span12" style="min-height:50px;">
+                        <form id="id_client_search_form" action="" method="get">
+                            <span>客户:</span>
+                            <input type="text" class="input-medium" name="name" id="id_name" data-provide="typeahead" autocomplete="off" {% if name%} value="{{ name}}" {% endif %}/>
+                                <select id="id_id" name="id" class="input-medium hide">
+									<option value=''>-------</option>
+									{% for client in clients %}
+                                    <option value="{{ client.id }}"
+                                        {% ifequal client.id id %}
+                                            selected="selected"
+                                        {% endifequal %}
+                                    >{{ client.id }}-{{ client.name }}
+                                    </option>
+									{% endfor %}
+                                </select>
+                                <input id="id_client_list" type="checkbox" {% if id %}checked=true{% endif %}>选
+                                <span>&nbsp;状态：</span>
+                                <select name="status" class="input-small">
+                                    <option value="">-------</option>
+                                    <option value="1" {% ifequal 1 status %} selected="selectd" {% endifequal %}>有效</option>
+                                    <option value="0" {% ifequal 0 status %} selected="selectd" {% endifequal %}>无效</option>
+                                </select>
+                                <input type="submit" id="id_client_search" value="查询" class="btn btn-primary" />
+                                &nbsp;
+								<span>符合条件人数:{{ count }}</span>
+							</form>
+						</div>
+
+					<table class="table table-striped table-bordered table-advance table-hover">
+                            <thead>
+                                <tr>
+                                    <th>客户</th>
+                                    <th>联系方式</th>
+                                    <th>时间</th>
+                                    <th>状态</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% if client_list and client_list.count > 0 %}
+                                	{% for client in client_list %}
+                                    <tr {% ifequal client.id id %}class="success"{% endifequal %}>
+                                    <td>
+                                        <span class="label label-info">{{ client.id }}</span>
+                                        <a href="#"
+                                            class="client-content" 
+                            		        data-toggle="popover" 
+                            	        	data-placement="right" 
+                                            data-content="<p class='muted'>
+                                            客户 ID：{{ client.id|safe|slice:':100' }}<br>
+                                            客户：{{ client.name|safe|slice:":100" }}<br>
+                                            联系方式：{{ client.contact|safe|slice:":100" }}<br>
+                                            创建时间：{{ client.create_time|date:'Y-m-d H:i:s' }}<br>
+                                            </p>" 
+                            		        title="{{ client.id }}" 
+                                            data-original-title="预览"
+                                            >{{ client.name|safe|slice:":20" }}
+                                            <br>
+                                        </a>
+                                    </td>
+                                    <td>
+                                        {{ client.contact }}
+                                    </td>
+                                    <td>
+                                        <small title="注册时间">注册时间:{{ client.create_time|date:'Y-m-d H:i:s' }}</small>
+                                        <br>
+                                        <small title="修改时间">修改时间:{{ client.modify_time|date:'Y-m-d H:i:s' }}</small>
+                                    </td>
+                                    <td>
+                                    	{% if client.status == 0 %}
+                                        <span class="label label-important" title="code:0">无效</span>
+                                    	{% elif client.status == 1 %}
+                                        <span class="label label-success" title="code:1">有效</span>
+                                    	{% else %}
+                                    	<span class="label label-warning" >异常 code: {{ client_info.status }}</span>
+                                    	{% endif %}	
+                                    </td>
+                                    <td>                                       
+                                        <a href="/client/edit/?id={{ client.id }}">编辑</a>
+                                        &nbsp;
+                                        <!---
+                                        <a href="#" id="btn_stop" class="client_stop" onclick="stopclient({{ client.id }})">
+                                            {% if client.status == 0 %}
+                                            激活
+                                            {% else %}
+                                            停止
+                                            {% endif %}
+                                        </a>
+                                        --->
+                                    </td>
+                                    </tr>
+                                	{% endfor %}
+                                {% else %}
+                                <tr>
+                                    <td colspan="12">
+                                    	<div align="center">暂无数据</a></div>
+                                    </td>
+                                </tr>
+                                {% endif %}
+                            </tbody>
+						</table>
+						<div class="pagination" align="right">
+	                        <ul>
+	                            {% if client_list.has_previous %}
+	                            <li>
+                                <a href="?&page={{ client_list.previous_page_number }}{% if id %}&id={{ id }}{% endif %}{% if name %}&name={{ name }}{% endif %}{% if status %}&status={{ status }}{% endif %}">
+	                            	上一页 
+	                            </a></li>
+	                            {% else %}
+	                            <li class="disabled"><a href="#">上一页</a></li>
+	                            {% endif %}
+	                            <li class="disabled"><a href="#">{{ client_list.number }}/{{ client_list.paginator.num_pages }}</a></li>
+	                            {% if client_list.has_next %}
+                                <li><a href="?&page={{ client_list.next_page_number }}{% if id %}&id={{ id }}{% endif %}{% if name %}&name={{ name }}{% endif %}{% if status %}&status={{status}}{% endif %}">
+                                   下一页
+                                </a></li>
+                                    {% else %}
+	                            <li class="disabled"><a href="#">下一页</a></li>
+	                            {% endif %}
+	                        </ul>
+	                    </div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+{% endblock %}
+
+{% block foot %}
+<script src="/static/vendors/datepicker/js/bootstrap-datepicker.js"></script>
+<script src="/static/vendors/datepicker/js/locales/bootstrap-datepicker.zh-CN.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){
+        initDatepacker(); 
+        initclientDropList();
+    $('#id_name').typeahead({
+        source: function (query, process) {
+            var parameter = {'client_name': query};
+            var name_array = new Array();
+            $.post('/client/get/', parameter, function (data) {
+                if(data['code'] == 1){
+                    for(var i=0; i<data['client_list'].length; i++){
+                        name_array[i] = data['client_list'][i]['name'];
+                    }
+                }
+                process(name_array);
+            });
+        }
+    });
+
+});
+
+function initDatepacker(){
+    $(".date").datepicker({
+        'language' : 'zh-CN'
+    });
+}
+
+function stopclient(id){
+    var flag = confirm("确定要删除？")
+    if (flag)
+    {
+        return location.href="/client/stop/?id=" + id
+    }
+}
+
+$(function () {
+        $('.client-content').popover({
+            html: true,
+            trigger: 'hover',
+    });
+});
+
+
+function initclientDropList(){
+    if(document.getElementById("id_client_list").checked) {
+        $("#id_id").removeClass("hide");
+        $("#id_name").hide();
+    }
+    $("#id_client_list").click(function(){
+        var checked = $(this).is(":checked");
+        if (checked) {
+            $("#id_id").removeClass("hide");
+            $("#id_name").hide();
+        } else {
+            $("#id_id").addClass("hide");
+            $("#id_name").show();
+        }
+    });
+    $("#id_id").change(function(){
+        $("#id_name").val("");
+    });
+    $("#id_name").change(function(){
+        $("#id_id").val("");
+    });
+}
+
+</script>
+{% endblock %}

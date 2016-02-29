@@ -1,0 +1,121 @@
+{% extends "layouts/sidebar.html" %}
+
+{% block head %}
+<link href="/static/vendors/datepicker/css/datepicker.css" rel="stylesheet" />
+{% endblock %}
+
+{% block title %}类型列表{% endblock %}
+{% block subtitle %}类型列表{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+	<div class="row-fluid">
+		<div class="span12">
+			<ul class="breadcrumb">
+				<li class="active">
+					<a href="/contact/type/">类型列表</a><span class="divider">/<a href="/contact/type/edit/">创建类型</a><span class="divider"></span>
+				</li>
+			</ul>
+			<div class="widget">
+				<div class="widget-title">
+					<h3>类型列表</h3>
+				</div>
+                <div class="widget-body">
+                    <div id="filter_div" class="span12" style="min-height:50px;">
+                        <form id="id_contact_search_form" action="" method="get">
+                            <span>类别:</span>
+                                <input type="text" class="input-medium" name="type" id="id_type" data-provide="typeahead" autocomplete="off" {% if type %} value="{{ type }}" {% endif %}/>
+                                &nbsp;
+                                <input type="submit" id="id_contact_search" value="查询" class="btn btn-primary" />
+                                &nbsp;
+								<span>符合条件数:{{ count }}</span>
+							</form>
+						</div>
+
+					<table class="table table-striped table-bordered table-advance table-hover">
+                            <thead>
+                                <tr>
+                                    <th>类型</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% if contact_list and contact_list.count > 0 %}
+                                	{% for contact in contact_list %}
+                                    <tr {% if id %}class="success"{% endif %}>
+                                    <td>
+                                        {{ contact.type }}
+                                    </td>
+                                    <td>                                       
+                                        <a href="/contact/type/edit/?id={{ contact.id }}">编辑</a>
+                                        &nbsp;
+                                        <!---
+                                        <a href="#" id="btn_stop" class="contact_stop" onclick="stopcontact({{ contact.id }})">
+                                            {% if contact.status == 0 %}
+                                            激活
+                                            {% else %}
+                                            停止
+                                            {% endif %}
+                                        </a>
+                                        --->
+                                    </td>
+                                    </tr>
+                                	{% endfor %}
+                                {% else %}
+                                <tr>
+                                    <td colspan="12">
+                                    	<div align="center">暂无数据</a></div>
+                                    </td>
+                                </tr>
+                                {% endif %}
+                            </tbody>
+						</table>
+						<div class="pagination" align="right">
+	                        <ul>
+	                            {% if contact_list.has_previous %}
+	                            <li>
+                                <a href="?&page={{ contact_list.previous_page_number }}{% if id %}&id={{ id }}{% endif %}{% if type %}&type={{ type }}{% endif %}">
+	                            	上一页 
+	                            </a></li>
+	                            {% else %}
+	                            <li class="disabled"><a href="#">上一页</a></li>
+	                            {% endif %}
+	                            <li class="disabled"><a href="#">{{ contact_list.number }}/{{ contact_list.paginator.num_pages }}</a></li>
+	                            {% if contact_list.has_next %}
+                                <li><a href="?&page={{ contact_list.next_page_number }}{% if id %}&id={{ id }}{% endif %}{% if type %}&type={{ type }}{% endif %}">
+                                   下一页
+                                </a></li>
+                                    {% else %}
+	                            <li class="disabled"><a href="#">下一页</a></li>
+	                            {% endif %}
+	                        </ul>
+	                    </div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+{% endblock %}
+
+{% block foot %}
+<script src="/static/vendors/datepicker/js/bootstrap-datepicker.js"></script>
+<script src="/static/vendors/datepicker/js/locales/bootstrap-datepicker.zh-CN.js"></script>
+<script type="text/javascript">
+function stopcontact(id){
+    var flag = confirm("确定要删除？")
+    if (flag)
+    {
+        return location.href="/contact/stop/?id=" + id
+    }
+}
+
+$(function () {
+        $('.contact-content').popover({
+            html: true,
+            trigger: 'hover',
+    });
+});
+
+</script>
+{% endblock %}

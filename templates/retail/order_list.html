@@ -1,0 +1,355 @@
+{% extends "layouts/sidebar.html" %}
+
+{% block head %}
+<link href="/static/vendors/datepicker/css/datepicker.css" rel="stylesheet" />
+{% load humanize %}
+{% endblock %}
+
+{% block title %}散货订单列表{% endblock %}
+{% block subtitle %}散货订单列表{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+	<div class="row-fluid">
+		<div class="span12">
+			<ul class="breadcrumb">
+				<li class="active">
+					<a href="/retail/list/">散货订单列表</a><span class="divider">/</span>
+				</li>
+			</ul>
+			<div class="widget">
+				<div class="widget-title">
+					<h3>散货订单列表</h3>
+				</div>
+                <div class="widget-body">
+                    <div id="filter_div" class="span12" style="min-height:50px;">
+                        <form id="id_retail_search_form" action="" method="get">
+                            <span>订单号:</span>
+                            <input type="text" class="input-medium" name="oid" id="id_oid" data-provide="typeahead" autocomplete="off" {% if oid %} value="{{ oid }}" {% endif %}/>
+                            <span>钢铁:</span>
+                            <select id="id_sid" name="sid" class="input-small">
+                                <option value=''>-------</option>
+                                {% for steel in steels %}
+                                <option value="{{ steel.id }}"
+                                    {% ifequal steel.id sid %}
+                                    selected="selected"
+                                    {% endifequal %}
+                                    >{{ steel.id }}-{{ steel.name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                            <span>进货商:</span>
+                            <input type="text" class="input-small" name="supplier_name" id="id_supplier_name" data-provide="typeahead" autocomplete="off" {% if supplier_name %} value="{{ supplier_name}}" {% endif %}/>
+                            <select id="id_supplier_id" name="supplier_id" class="input-small hide">
+                                <option value=''>-------</option>
+                                {% for supplier in suppliers %}
+                                <option value="{{ supplier.id }}"
+                                    {% ifequal supplier.id supplier_id %}
+                                    selected="selected"
+                                    {% endifequal %}
+                                    >{{ supplier.id }}-{{ supplier.name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                            <input id="id_supplier_list" type="checkbox" {% if supplier_id %}checked="True"{% endif%}>选
+                            <span>日期：</span>
+                            <span class="input-append date" id="startDateDp" data-date="{{ from_date|date:'Y-m-d'}}" data-date-format="yyyy-mm-dd">
+                                <input class="input-small" size="16" name="from_date" type="text" value="{{ from_date|date:'Y-m-d'}}">
+                                <span class="add-on"><i class="icon-th"></i></span>
+                            </span>
+                            &nbsp;至&nbsp;
+                            <span class="input-append date" id="endDateDp" data-date="{{ end_date|date:'Y-m-d'}}" data-date-format="yyyy-mm-dd">
+                                <input class="input-small" size="16" type="text" name="end_date" value="{{ end_date|date:'Y-m-d'}}">
+                                <span class="add-on"><i class="icon-th"></i></span>
+                            </span>
+                            <div>
+                                <input type="submit" id="id_retail_search" value="查询" class="btn btn-primary" />
+                                &nbsp;
+                                <input type="button" id="id_retail_export" value="导出" class="btn" />
+                                <input type="hidden" id="id_export" name="export" value="False"/>
+                            </div>
+							</form>
+						</div>
+
+					<table class="table table-striped table-bordered table-advance table-hover">
+                            <thead>
+                                <tr>
+                                    <th>订单号</th>
+                                    <th>日期</th>
+                                    <th>价格</th>
+                                    <th>进货商</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% if retail_list and retail_list.count > 0 %}
+                                    {% for item in retail_list %}
+                                    <tr {% ifequal id item.retail.id %}class="success"{% endifequal %}>
+                                    <td>
+                                        <a href="javascript:void(0)" data-oid="{{ item.retail.oid }}"
+                                            class="order-btn"
+                            		        data-toggle="popover" 
+                            	        	data-placement="right" 
+                                            data-content="<p class='muted'>
+                                            下单时间：{{ item.retail.create_time|date:'Y-m-d H:i:s' }}<br>
+                                            </p>" 
+                            		        title="{{ item.retail.id }}"
+                                            data-original-title="预览"
+                                            >{{ item.retail.oid }}
+                                            <br>
+                                        </a>
+                                    </td>
+                                    <td>
+                                        {{ item.retail.order_day|date:'Y-m-d' }}
+                                    </td>
+                                    <td style="text-align:right;">
+                                        {{ item.retail.total_price|floatformat:2|intcomma }}
+                                    </td>
+                                    <td>
+                                        {{ item.supplier.name }}
+                                    </td>
+                                    <td>
+                                        {% if item.check_time == 1 %}
+                                        <a href="/retail/order/edit/?oid={{ item.oid }}">编辑</a>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                <tr class="retail_{{ item.retail.oid }} hide">
+                                    <td colspan="9">
+                                        <table class="table table-striped table-bordered table-advance table-hover" id="retail_{{ item.retail.oid }}">
+                                            <thead>
+                                                <tr>
+                                                    <th>订单号</th>
+                                                    <th>钢铁</th>
+                                                    <th>单价</th>
+                                                    <th>数量</th>
+                                                    <th>总价</th>
+                                                    <th>状态</th>
+                                                    <th>操作</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for retail in item.retail.get_retails %}
+                                                    <tr>
+                                                        <td>{{ retail.oid }}</td>
+                                                        
+                                                        <td>{% for temp_steel in steels %}
+                                                            {% if temp_steel.id == retail.sid %}
+                                                            <span class="label label-info">{{ temp_steel.id }}</span>
+                                                            <a href="#"
+                                                                class="steel-content"
+                                                                data-toggle="popover"
+                                                                data-placement="right"
+                                                                data-content="<p class='muted'>
+                                                                钢铁名称：{{ temp_steel.name }}<br>
+                                                                规格：{{ temp_steel.high_str }}<br>
+                                                                长度：{{ temp_steel.len_str }}<br>
+                                                                宽度：{{ temp_steel.wid_str }}<br>
+                                                                </p>"
+                                                                title="{{ temp_steel.name }}"
+                                                                data-original-title="预览"
+                                                                >{{ temp_steel.name }}
+                                                                <br>
+                                                            </a>
+                                                            
+                                                            {% endif %}
+                                                            {% endfor %}
+                                                        </td>
+                                                        <td style="text-align:right;">{{ retail.unit_price|floatformat:2|intcomma }}</td>
+                                                        <td style="text-align:right;">{{ retail.number|intcomma }}</td>
+                                                        <td style="text-align:right;">{{ retail.total_price|floatformat:2|intcomma }}</td>
+                                                        <td> {% if retail.status == 3 %}
+                                                            <span class="label label-default">已经用完</span>
+                                                            {% elif retail.status == 2 %}
+                                                            <span class="label label-warning">部分已用</span>
+                                                            {% elif retail.status == 1 %}
+                                                            <span class="label label-success">没有使用</span>
+                                                            {% endif %}
+                                                        </td>
+                                                        <td>
+                                                            {% if item.check_time == 1 %}
+                                                            <a href="/retail/edit/?id={{ retail.id }}">编辑</a>
+                                                            {% endif %}
+                                                        </td>
+                                                    </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                                {% else %}
+                                <tr>
+                                    <td colspan="12">
+                                    	<div align="center">暂无数据</a></div>
+                                    </td>
+                                </tr>
+                                {% endif %}
+                                
+                            
+                            </tbody>
+						</table>
+						<div class="pagination" align="right">
+	                        <ul>
+	                            {% if retail_order_list.has_previous %}
+	                            <li>
+                                <a href="?&page={{ retail_order_list.previous_page_number }}{% if id %}&id={{ id }}{% endif %}{% if oid %}&oid={{ oid }}{% endif %}{% if sid %}&sid={{ sid }}{% endif %}{% if from_date %}&from_date={{ from_date|date:'Y-m-d' }}{% endif %}{% if end_date %}&end_date={{ end_date|date:'Y-m-d' }}{% endif %}">
+	                            	上一页 
+	                            </a></li>
+	                            {% else %}
+	                            <li class="disabled"><a href="#">上一页</a></li>
+	                            {% endif %}
+	                            <li class="disabled"><a href="#">{{ retail_order_list.number }}/{{ retail_order_list.paginator.num_pages }}</a></li>
+	                            {% if retail_order_list.has_next %}
+                                <li><a href="?&page={{ retail_order_list.next_page_number }}{% if id %}&id={{ id }}{% endif %}{% if oid %}&oid={{ oid }}{% endif %}{% if sid %}&sid={{sid}}{% endif %}{% if from_date %}&from_date={{ from_date|date:'Y-m-d' }}{% endif %}{% if end_date %}&end_date={{ end_date|date:'Y-m-d' }}{% endif %}">
+                                   下一页
+                                </a></li>
+                                    {% else %}
+	                            <li class="disabled"><a href="#">下一页</a></li>
+	                            {% endif %}
+	                        </ul>
+	                    </div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+{% endblock %}
+
+{% block foot %}
+<script src="/static/vendors/datepicker/js/bootstrap-datepicker.js"></script>
+<script src="/static/vendors/datepicker/js/locales/bootstrap-datepicker.zh-CN.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){
+    initDatepacker();
+    initOrderBtn();
+    initSearchForm();
+    initSupplierDropList();
+    $('#id_supplier_name').typeahead({
+        source: function (query, process) {
+            var parameter = {'supplier_name': query};
+            var name_array = new Array();
+            $.post('/supplier/get/', parameter, function (data) {
+                if(data['code'] == 1){
+                    for(var i=0; i<data['supplier_list'].length; i++){
+                        name_array[i] = data['supplier_list'][i]['name'];
+                    }
+                }
+                process(name_array);
+            });
+        }
+    });
+
+});
+
+function initOrderBtn(){
+    $('.order-btn').click(function(){
+        var oid = $(this).attr('data-oid');
+        var trs = $('.retail_' + oid);
+        if(trs.is(":visible")){
+            trs.hide();
+        }else{
+            trs.show();
+        }
+    })
+}
+
+function initDatepacker(){
+    $(".date").datepicker({
+        'language' : 'zh-CN'
+    });
+}
+
+function stopcp(id){
+    var flag = confirm("确定要删除？")
+    if (flag)
+    {
+        return location.href="/cp/stop/?id=" + id
+    }
+}
+
+$(function () {
+        $('.steel-content').popover({
+            html: true,
+            trigger: 'hover',
+    });
+});
+
+
+function initSupplierDropList(){
+    if (document.getElementById("id_supplier_list").checked) {
+        $("#id_supplier_id").removeClass("hide");
+        $("#id_supplier_name").hide();
+    }
+    $("#id_supplier_list").click(function(){
+        var checked = $(this).is(":checked");
+        if (checked) {
+            $("#id_supplier_id").removeClass("hide");
+            $("#id_supplier_name").hide();
+        } else {
+            $("#id_supplier_id").addClass("hide");
+            $("#id_supplier_name").show();
+        }
+    });
+    $("#id_supplier_id").change(function(){
+        $("#id_supplier_name").val("");
+    });
+    $("#id_supplier_name").change(function(){
+        $("#id_supplier_id").val("");
+    });
+}
+/***
+function load_chn_data(aid) {
+    if (aid > 0) {
+        var url = "/pay/game/list/load_chn_data/" + aid + "/";
+        
+        $.getJSON(url, function(json) {
+                  var code = Number(json['code']);
+                  if (code == 1) {
+                  var game_list = json['data'];
+                  var data_summary = json['summary'];
+                  var s = "";
+                  for(var i = 0; i < game_list.length; i ++){
+                  s += "<tr class='chn_tr_" + aid + "'>"
+                  + "<td>" + game_list[i]['name'] + "<small class='g9'>(" + game_list[i]['chnid'] + ")</small></td>"
+                  + "<td>￥" + game_list[i]['money'] + "</td><td>$" + game_list[i]['money_usd'] + "</td>"
+                  + "<td>" + game_list[i]['count'] + "</td><td>" + game_list[i]['person'] + "</td>"
+                  + "<td>" + game_list[i]['active'] + "</td><td>" + game_list[i]['reg'] + "</td>"
+                  + "<td>" + game_list[i]['login'] + "</td><td>" + game_list[i]['login_person'] + "</td>"
+                  + "<td>" + game_list[i]['next_day_stay'] + "</td><td>" + game_list[i]['seven_day_stay'] + "</td>"
+                  + "<td><a href='/pay/reports/base/" + game_list[i]['aid'] + "/" + game_list[i]['chnid'] + "/'>详情</a>&nbsp;"
+                  + "<a href='/pay/game/channel/edit/" + game_list[i]['aid'] + "/" +game_list[i]['chnid'] + "/'>编辑</a>&nbsp;"
+                  + "<a href='/pay/channel/user_stat_audit/list/" + game_list[i]['aid'] + "/" + game_list[i]['chnid'] + "/'>外部渠道数据</a></td>"
+                  + "</tr>";
+                  }
+                  s += "<tr style='font-weight: bolder;'>"
+                  + "<td>昨日合计:</td>"
+                  + "<td>￥"+data_summary[0]['money']+"</td><td>$" + data_summary[0]['money_usd'] + "</td>"
+                  + "<td>"+data_summary[0]['count']+"</td><td>" + data_summary[0]['person'] + "</td>"
+                  + "<td>"+data_summary[0]['active']+"</td><td>" + data_summary[0]['reg'] + "</td>"
+                  + "<td>"+data_summary[0]['login']+"</td><td>" + data_summary[0]['login_person'] + "</td>"
+                  + "<td>"+data_summary[0]['next_day_stay']+"</td><td>" + data_summary[0]['seven_day_stay'] + "</td>"
+                  + "<td></td></tr>";
+                  $("#chn_data_" + aid + ">tbody").empty().append(s);
+                  }
+                  }).error(function() { alert("check update error"); });
+    }
+}
+***/
+function initSearchForm() {
+    $('#id_retail_search').click(function(){
+        $('#id_export').val('false');
+        $('#id_retail_search_form').submit();
+    });
+                                
+    $('#id_retail_export').click(function(){
+        var flag = confirm("确定要导出吗？");
+        if(flag){
+            $('#id_export').val('true');
+            $('#id_retail_search_form').submit();
+        }
+    });
+}
+</script>
+{% endblock %}

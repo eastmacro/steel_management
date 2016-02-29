@@ -1,0 +1,58 @@
+{% extends "layouts/sidebar.html" %}
+
+{% block head %}
+<link href="/static/vendors/datepicker/css/datepicker.css" rel="stylesheet" />
+{% endblock %}
+
+{% block title %}{% if contact_type %}编辑{% else %}创建{% endif %}类型信息{% endblock %}
+{% block subtitle %}{% if contact_type %}编辑{% else %}创建{% endif %}类型信息{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+	<div class="row-fluid">
+		<div class="span12">
+			<ul class="breadcrumb">
+				<li>
+					<a href="/contact/type/">类型列表</a><span class="divider">/</span>
+				</li>
+				<li class="active">
+					{% if contact_type %}编辑{% else %}创建{% endif %}
+				</li>
+			</ul>
+			<div class="widget">
+				<div class="widget-title">
+                    <h3>{% if contact_type %}编辑{% else %}创建{% endif %}类型</h3>
+				</div>
+				<div class="widget-body">
+					<form id="edit_form" action="" method="post" enctype="multipart/form-data" class="form-horizontal">
+                        <legend>基本信息</legend>
+                        <div class="control-group">
+                            <label class="control-label" for="id_type" >类型:</label>
+							<div class="controls">
+                                {{ form.type }}(必须唯一)
+                            </div>
+							{% if form.type.errors %}
+							<div class="alert alert-error" style="margin:10px 180px;width:170px;">
+								{% for error in form.type.errors %}
+								<div>{{ error|escape }}</div>
+								{% endfor %}
+							</div>
+							{% endif %}
+                        </div>						
+                    	<div class="form-actions">
+							<button id="submit_btn" type="submit" class="btn btn-primary">
+								确定
+							</button>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+{% endblock %}
+
+{% block foot %}
+<script src="/static/vendors/datepicker/js/bootstrap-datepicker.js"></script>
+<script src="/static/vendors/datepicker/js/locales/bootstrap-datepicker.zh-CN.js"></script>
+{% endblock %}

@@ -1,0 +1,108 @@
+{% extends "layouts/sidebar.html" %}
+
+{% block head %}
+<link href="/static/vendors/datepicker/css/datepicker.css" rel="stylesheet" />
+{% endblock %}
+
+{% block title %}{% if order %}编辑{% else %}创建{% endif %}订单{% endblock %}
+{% block subtitle %}{% if order %}编辑{% else %}创建{% endif %}订单{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+	<div class="row-fluid">
+		<div class="span12">
+			<ul class="breadcrumb">
+				<li>
+                <a href="/buys/bulk/list/">订单列表</a><span class="divider">/</span>
+				</li>
+				<li class="active">
+					{% if order %}编辑{% else %}创建{% endif %}订单
+				</li>
+			</ul>
+			<div class="widget">
+				<div class="widget-title">
+                    <h3>{% if order %}编辑{% else %}创建{% endif %}订单</h3>
+				</div>
+				<div class="widget-body">
+					<form id="edit_form" action="" method="post" enctype="multipart/form-data" class="form-horizontal">
+                        <div class="control-group">
+                            <table class="table table-bordered" style="100%">
+							<tr>
+								<td>订单号</td>
+                                <td><input style="width:140px" type='text' {% if oid %} value="{{ oid }}" {% endif %} name="oid" id="id_oid" data-provide="typeahead" autocomplete='off' readonly="readonly"/></td>
+                                <td>日期</td>
+                                <td><input style="width:100px" type='text' {% if order_day %} value="{{ order_day|date:'Y-m-d' }}" {% endif %} name="order_day" id="id_order_day" data-provide="typeahead" autocomplete='off' readonly="readonly"/></td>
+                                
+                                <td>
+                                    <select style="width:80px" id="id_is_youpiao" name="is_youpiao">
+                                        <option value=0>无票</option>
+                                        <option value=1>有票</option>
+                                    </select>
+                                </td>
+                                <td>客户</td>
+                                <td>
+                                    <select style="width:150px" id="id_client_id" name="client_id">
+                                        <option value=''>-------</option>
+                                        {% for client in clients %}
+                                        <option value="{{ client.id }}"
+                                            {% ifequal client.id client_id %}
+                                            selected="selected"
+                                            {% endifequal %}
+                                            >{{ client.id }} - {{ client.name }}
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+                                </td>
+							</tr>
+						    </table>
+						</div>
+                        <div class="control-group">
+                        <table id="sell_table" class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>名称及规格</th>
+                                    <th>数量(件)</th>
+                                    <th>单价</th>
+                                    <th>金额</th>
+                                </tr>
+                            </thead>
+                            <tbody >
+                                {% for i in num %}
+                                <tr>
+                                    <td>
+                                        <select style="width:160px" id="id_sid_{{ i }}" name="sid_{{ i }}">
+                                        <option value=''>-------</option>
+                                        {% for steel in steels %}
+                                        <option value="{{ steel.id }}"
+                                            {% ifequal steel.id sid %}
+                                            selected="selected"
+                                            {% endifequal %}
+                                            >{{steel.id}} - {{ steel.name }}
+                                        </option>
+                                        {% endfor %}
+                                    </select></td>
+                                    <td><input style="width:160px" type="text" name="number_{{ i }}"></td>
+                                    <td><input style="width:160px" type="text" name="unit_price_{{ i }}"></td>
+                                    <td><input style="width:160px" type="text" name="total_price_{{ i }}"></td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                        </div>
+                        <div class="form-actions">
+							<button id="submit_btn" type="submit" class="btn btn-primary">
+								保存
+                            </button>
+                        </div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+{% endblock %}
+
+{% block foot %}
+<script src="/static/vendors/datepicker/js/bootstrap-datepicker.js"></script>
+<script src="/static/vendors/datepicker/js/locales/bootstrap-datepicker.zh-CN.js"></script>
+{% endblock %}

@@ -1,0 +1,287 @@
+{% extends "layouts/sidebar.html" %}
+
+{% block head %}
+<link href="/static/vendors/datepicker/css/datepicker.css" rel="stylesheet" />
+{% endblock %}
+
+{% block title %}{% if batch %}编辑{% else %}创建{% endif %}进货订单{% endblock %}
+{% block subtitle %}{% if batch %}编辑{% else %}创建{% endif %}进货订单{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+	<div class="row-fluid">
+		<div class="span12">
+			<ul class="breadcrumb">
+				<li>
+					<a href="/batch/">进货列表</a><span class="divider">/</span>
+				</li>
+				<li class="active">
+					{% if batch %}编辑{% else %}创建{% endif %}
+				</li>
+			</ul>
+			<div class="widget">
+				<div class="widget-title">
+                    <h3>{% if batch %}编辑{% else %}创建{% endif %}进货订单</h3>
+				</div>
+				<div class="widget-body">
+					<form id="edit_form" action="" method="post" enctype="multipart/form-data" class="form-horizontal">
+                        <legend>基本信息</legend>
+                        {% if error_list %}
+                        {% for item in error_list %}
+                        <div class="alert alert-danger" role="alert">{{ item }}</div>
+                        {% endfor %}
+                        {% endif %}
+                        <div class="control-group">
+                            <label class="control-label" for="id_oid" >订单号:</label>
+                            <div class="controls">
+                                <input type='text' {% if oid %} value="{{ oid }}" {% endif %} name="oid" id="id_oid" data-provide="typeahead" autocomplete='off' readonly="readonly"/>
+                            </div>
+                            {% if form.oid.errors %}
+                            <div class="alert alert-error" style="margin:10px 180px;width:170px;">
+                                {% for error in form.oid.errors %}
+                                <div>{{ error|escape }}</div>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="control-group">
+                            <label class="control-label" for="id_steel" >钢铁名称:</label>
+							<div class="controls">
+                                <input type='text' class='steel_name_list' {% if steel_name %} value="{{ steel_name }}" {% endif %} name="steel_name" id="id_steel_name" data-provide="typeahead" autocomplete='off'/>
+                                <select id="id_steel_id" name="steel_id" class="hide">
+                                    <option value=''>-------</option>
+                                    {% for steel in steels %}
+                                    <option value="{{ steel.id }}"
+                                        {% ifequal steel.id steel_id %}
+                                        selected="selected"
+                                        {% endifequal %}
+                                        >{{ steel.id }}-{{ steel.name }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                                <input id="id_steel_list" type="checkbox" {% if id %}checked="True"{% endif%}>选
+                                <input type='text' class='hide' id="id_len_str" name="len_str"/>
+                                <input type='text' class='hide' id="id_wid_str" name="wid_str"/>
+                            </div>
+                        </div>	
+                        <div class="control-group">
+                            <label class="control-label" for="id_supplier">进货商:</label>
+							<div class="controls">
+                                <input type="text" name="supplier_name" id="id_supplier_name" data-provide="typeahead" autocomplete="off" {% if supplier_name%} value="{{ supplier_name}}" {% endif %}/>
+                                <select id="id_supplier_id" name="supplier_id" class="hide">
+                                    <option value=''>-------</option>
+                                    {% for supplier in suppliers %}
+                                    <option value="{{ supplier.id }}"
+                                        {% ifequal supplier.id suppier_id %}
+                                        selected="selected"
+                                        {% endifequal %}
+                                        >{{ supplier.id }}-{{ supplier.name }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                                <input id="id_supplier_list" type="checkbox" {% if id %}checked="True"{% endif%}>选
+                            </div>
+						</div>
+
+                        <div class="control-group">
+                            <label class="control-label" for="id_weight" >吨数:</label>
+							<div class="controls">
+                                {{ form.weight }}吨
+                            </div>
+                            {% if form.weight.errors %}
+							<div class="alert alert-error" style="margin:10px 180px;width:170px;">
+								{% for error in form.weight.errors %}
+								<div>{{ error|escape }}</div>
+								{% endfor %}
+							</div>
+							{% endif %}
+						</div>
+                        <div class="control-group">
+                            <label class="control-label" for="id_unit_price" >每吨价格:</label>
+							<div class="controls">
+                                {{ form.unit_price }}￥
+                            </div>
+                            {% if form.unit_price.errors %}
+							<div class="alert alert-error" style="margin:10px 180px;width:170px;">
+								{% for error in form.unit_price.errors %}
+								<div>{{ error|escape }}</div>
+								{% endfor %}
+							</div>
+							{% endif %}
+						</div>
+                        <div class="control-group">
+                            <label class="control-label" for="id_number" >件数:</label>
+							<div class="controls">
+                                {{ form.number }}（可空，空时为在仓库）
+                            </div>
+                            {% if form.number.errors %}
+							<div class="alert alert-error" style="margin:10px 180px;width:170px;">
+								{% for error in form.number.errors %}
+								<div>{{ error|escape }}</div>
+								{% endfor %}
+							</div>
+							{% endif %}
+						</div>
+                        <div class="control-group">
+                            <label class="control-label" for="id_number" >有票成本:</label>
+                            <div class="controls">
+                                {{ form.cost_a }}
+                            </div>
+                            {% if form.cost_a.errors %}
+                            <div class="alert alert-error" style="margin:10px 180px;width:170px;">
+                                {% for error in form.cost_a.errors %}
+                                <div>{{ error|escape }}</div>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="control-group">
+                            <label class="control-label" for="id_cost_b" >无票成本:</label>
+                            <div class="controls">
+                                {{ form.cost_b }}
+                            </div>
+                            {% if form.cost_b.errors %}
+                            <div class="alert alert-error" style="margin:10px 180px;width:170px;">
+                                {% for error in form.cost_b.errors %}
+                                <div>{{ error|escape }}</div>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="control-group">
+                            <label class="control-label" for="id_product_place" >产地:</label>
+                            <div class="controls">
+                                {{ form.product_place }}（可空）
+                            </div>
+                            {% if form.product_place.errors %}
+                            <div class="alert alert-error" style="margin:10px 180px;width:170px;">
+                                {% for error in form.product_place.errors %}
+                                <div>{{ error|escape }}</div>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+						{% if batch %}
+						<div class="control-group">
+							<label class="control-label" for="id_create_time">创建时间:</label>
+							<div class="controls">
+								<p style="margin-top: 8px">{{ batch.create_time|date:'Y-m-d H:i:s' }}</p>
+							</div>
+						</div>
+                        {% endif %}
+                    	<div class="form-actions">
+							<button id="submit_btn" type="submit" class="btn btn-primary">
+								保存
+							</button>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+{% endblock %}
+
+{% block foot %}
+<script src="/static/vendors/datepicker/js/bootstrap-datepicker.js"></script>
+<script src="/static/vendors/datepicker/js/locales/bootstrap-datepicker.zh-CN.js"></script>
+<script>
+$(document).ready(function(){
+    initSupplierDropList()
+    initSteelDropList()
+    $('#id_steel_name').typeahead({
+    source: function (query, process) {
+        var parameter = {'steel_name': query};
+        var name_array = new Array();
+        $.post('/steel/get/', parameter, function (data) {
+            if(data['code'] == 1){
+                for(var i=0; i<data['steel_list'].length; i++){
+                    name_array[i] = data['steel_list'][i]['name'];
+                }
+            }
+            process(name_array);
+        });
+    }
+    });
+    $('#id_supplier_name').typeahead({
+        source:function(query, process){
+            var parameter = {'supplier_name': query};
+            var name_array = new Array();
+            $.post('/supplier/get/', parameter, function(data){
+                if(data['code'] == 1){
+                    for(var i=0;i<data['supplier_list'].length; i++){
+                        name_array[i] = data['supplier_list'][i]['name'];
+                    }
+                }
+                process(name_array);
+            });
+        }
+    });
+    $('#id_steel_name').change(function(){
+        var steel_name = $('#id_steel_name').val();
+        $.post('/steel/get/detail/',
+            {'steel_name': steel_name},
+            function(data){
+                $('#id_wid_str').val(data.wid_str);
+                $('#id_len_str').val(data.len_str);
+            });
+    });
+    $('#id_steel_id').change(function(){
+        var steel_id = $('#id_steel_id').val();
+        $.post('/steel/get/detail/',
+            {'steel_id': steel_id},
+            function(data){
+                $('#id_wid_str').val(data.wid_str);
+                $('#id_len_str').val(data.len_str);
+            });
+    });
+
+});
+function initSupplierDropList(){
+    if (document.getElementById("id_supplier_list").checked) {
+        $("#id_suppier_id").removeClass("hide");
+        $("#id_supplier_name").hide();
+    }
+    $("#id_supplier_list").click(function(){
+        var checked = $(this).is(":checked");
+        if (checked) {
+            $("#id_supplier_id").removeClass("hide");
+            $("#id_supplier_name").hide();
+        } else {
+            $("#id_supplier_id").addClass("hide");
+            $("#id_supplier_name").show();
+        }
+    });
+    $("#id_supplier_id").change(function(){
+        $("#id_supplier_name").val("");
+    });
+    $("#id_supplier_name").change(function(){
+        $("#id_supplier_id").val("");
+    });
+}
+
+function initSteelDropList(){
+    if (document.getElementById("id_steel_list").checked) {
+        $("#id_steel_id").removeClass("hide");
+        $("#id_steel_name").hide();
+    }
+    $("#id_steel_list").click(function(){
+        var checked = $(this).is(":checked");
+        if(checked) {
+            $("#id_steel_id").removeClass("hide");
+            $("#id_steel_name").hide();
+        } else {
+            $("#id_steel_id").addClass("hide");
+            $("#id_steel_name").show();
+        }
+    });
+    $("#id_steel_id").change(function(){
+        $("#id_steel_name").val("");
+    });
+    $("#id_steel_name").change(function(){
+        $("#id_steel_id").val("");
+    });
+}
+
+</script>
+{% endblock %}

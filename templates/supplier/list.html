@@ -1,0 +1,218 @@
+{% extends "layouts/sidebar.html" %}
+
+{% block head %}
+<link href="/static/vendors/datepicker/css/datepicker.css" rel="stylesheet" />
+{% endblock %}
+
+{% block title %}进货商列表{% endblock %}
+{% block subtitle %}进货商列表{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+	<div class="row-fluid">
+		<div class="span12">
+			<ul class="breadcrumb">
+				<li class="active">
+					<a href="/supplier/">进货商列表</a><span class="divider">/<a href="/supplier/edit/">创建进货商</a><span class="divider"></span>
+				</li>
+			</ul>
+			<div class="widget">
+				<div class="widget-title">
+					<h3>进货商列表</h3>
+				</div>
+                <div class="widget-body">
+                    <div id="filter_div" class="span12" style="min-height:50px;">
+                        <form id="id_supplier_search_form" action="" method="get">
+                            <span>进货商:</span>
+                            <input type="text" class="input-medium" name="name" id="id_name" data-provide="typeahead" autocomplete="off" {% if name%} value="{{ name}}" {% endif %}/>
+                                <select id="id_id" name="id" class="input-medium hide">
+									<option value=''>-------</option>
+									{% for supplier in suppliers %}
+                                    <option value="{{ supplier.id }}"
+                                        {% ifequal supplier.id id %}
+                                            selected="selected"
+                                        {% endifequal %}
+                                    >{{ supplier.id }}-{{ supplier.name }}
+                                    </option>
+									{% endfor %}
+                                </select>
+                                <input id="id_supplier_list" type="checkbox" {% if id %}checked="True"{% endif%}>选
+
+                                <input type="submit" id="id_supplier_search" value="查询" class="btn btn-primary" />
+                                &nbsp;
+								<span>符合条件人数:{{ count }}</span>
+							</form>
+						</div>
+
+					<table class="table table-striped table-bordered table-advance table-hover">
+                            <thead>
+                                <tr>
+                                    <th>进货商</th>
+                                    <th>联系方式</th>
+                                    <th>时间</th>
+                                    <th>状态</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% if supplier_list and supplier_list.count > 0 %}
+                                	{% for supplier in supplier_list %}
+                                    <tr {% ifequal supplier.id id %}class="success"{% endifequal %}>
+                                    <td>
+                                        <span class="label label-info">{{ supplier.id }}</span>
+                                        <a href="#"
+                                            class="supplier-content" 
+                            		        data-toggle="popover" 
+                            	        	data-placement="right" 
+                                            data-content="<p class='muted'>
+                                            进货商 ID：{{ supplier.id|safe|slice:':100' }}<br>
+                                            进货商：{{ supplier.name|safe|slice:":100" }}<br>
+                                            联系方式：{{ supplier.contact|safe|slice:":100" }}<br>
+                                            创建时间：{{ supplier.create_time|date:'Y-m-d H:i:s' }}<br>
+                                            </p>" 
+                            		        title="{{ supplier.id }}" 
+                                            data-original-title="预览"
+                                            >{{ supplier.name|safe|slice:":20" }}
+                                            <br>
+                                        </a>
+                                    </td>
+                                    <td>
+                                        {{ supplier.contact }}
+                                    </td>
+                                    <td>
+                                        <small title="注册时间">注册时间:{{ supplier.create_time|date:'Y-m-d H:i:s' }}</small>
+                                        <br>
+                                        <small title="修改时间">修改时间:{{ supplier.modify_time|date:'Y-m-d H:i:s' }}</small>
+                                    </td>
+                                    <td>
+                                    	{% if supplier.status == 0 %}
+                                        <span class="label label-important" title="code:0">无效</span>
+                                    	{% elif supplier.status == 1 %}
+                                        <span class="label label-success" title="code:1">有效</span>
+                                    	{% else %}
+                                    	<span class="label label-warning" >异常 code: {{ supplier_info.status }}</span>
+                                    	{% endif %}	
+                                    </td>
+                                    <td>                                       
+                                        <a href="/supplier/edit/?id={{ supplier.id }}">编辑</a>
+                                        &nbsp;
+                                        <!---
+                                        <a href="#" id="btn_stop" class="supplier_stop" onclick="stopsupplier({{ supplier.id }})">
+                                            {% if supplier.status == 0 %}
+                                            激活
+                                            {% else %}
+                                            停止
+                                            {% endif %}
+                                        </a>
+                                        --->
+                                    </td>
+                                    </tr>
+                                	{% endfor %}
+                                {% else %}
+                                <tr>
+                                    <td colspan="6">
+                                    	<div align="center">暂无数据</a></div>
+                                    </td>
+                                </tr>
+                                {% endif %}
+                            </tbody>
+						</table>
+						<div class="pagination" align="right">
+	                        <ul>
+	                            {% if supplier_list.has_previous %}
+	                            <li>
+                                <a href="?&page={{ supplier_list.previous_page_number }}{% if id %}&id={{ id }}{% endif %}{% if name %}&name={{ name }}{% endif %}{% if status %}&status={{ status }}{% endif %}">
+	                            	上一页 
+	                            </a></li>
+	                            {% else %}
+	                            <li class="disabled"><a href="#">上一页</a></li>
+	                            {% endif %}
+	                            <li class="disabled"><a href="#">{{ supplier_list.number }}/{{ supplier_list.paginator.num_pages }}</a></li>
+	                            {% if supplier_list.has_next %}
+                                <li><a href="?&page={{ supplier_list.next_page_number }}{% if id %}&id={{ id }}{% endif %}{% if name %}&name={{ name }}{% endif %}{% if status %}&status={{status}}{% endif %}">
+                                   下一页
+                                </a></li>
+                                    {% else %}
+	                            <li class="disabled"><a href="#">下一页</a></li>
+	                            {% endif %}
+	                        </ul>
+	                    </div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+{% endblock %}
+
+{% block foot %}
+<script src="/static/vendors/datepicker/js/bootstrap-datepicker.js"></script>
+<script src="/static/vendors/datepicker/js/locales/bootstrap-datepicker.zh-CN.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){
+        initDatepacker(); 
+        initsupplierDropList();
+    $('#id_name').typeahead({
+        source: function (query, process) {
+            var parameter = {'supplier_name': query};
+            var name_array = new Array();
+            $.post('/supplier/get/', parameter, function (data) {
+                if(data['code'] == 1){
+                    for(var i=0; i<data['supplier_list'].length; i++){
+                        name_array[i] = data['supplier_list'][i]['name'];
+                    }
+                }
+                process(name_array);
+            });
+        }
+    });
+
+});
+
+function initDatepacker(){
+    $(".date").datepicker({
+        'language' : 'zh-CN'
+    });
+}
+
+function stopsupplier(id){
+    var flag = confirm("确定要删除？")
+    if (flag)
+    {
+        return location.href="/supplier/stop/?id=" + id
+    }
+}
+
+$(function () {
+        $('.supplier-content').popover({
+            html: true,
+            trigger: 'hover',
+    });
+});
+
+
+function initsupplierDropList(){
+    if (document.getElementById("id_supplier_list").checked) {
+        $("#id_id").removeClass("hide");
+        $("#id_name").hide();
+    }
+    $("#id_supplier_list").click(function(){
+        var checked = $(this).is(":checked");
+        if (checked) {
+            $("#id_id").removeClass("hide");
+            $("#id_name").hide();
+        } else {
+            $("#id_id").addClass("hide");
+            $("#id_name").show();
+        }
+    });
+    $("#id_id").change(function(){
+        $("#id_name").val("");
+    });
+    $("#id_name").change(function(){
+        $("#id_id").val("");
+    });
+}
+
+</script>
+{% endblock %}

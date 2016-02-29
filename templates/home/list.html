@@ -1,0 +1,236 @@
+{% extends "layouts/sidebar.html" %}
+
+{% block head %}
+{% load humanize %}
+<link href="/static/vendors/datepicker/css/datepicker.css" rel="stylesheet" />
+{% endblock %}
+
+{% block title %}首页{% endblock %}
+{% block subtitle %}首页{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+	<div class="row-fluid">
+		<div class="span12">
+			<ul class="breadcrumb">
+				<li class="active">
+					<a href="/home/">首页</a><span class="divider">/</span>
+				</li>
+			</ul>
+			<div class="widget">
+				<div class="widget-title">
+					<h3>首页</h3>
+				</div>
+                <div class="widget-body">
+                    <div id="filter_div" class="span12" style="min-height:50px;">
+                        <form id="id_steel_search_form" action="" method="get">
+                            <span>钢铁:</span>
+                            <input type="text" class="input-medium" name="name" id="id_name" data-provide="typeahead" autocomplete="off" {% if name%} value="{{ name}}" {% endif %}/>
+                                <select id="id_id" name="id" class="input-medium hide">
+									<option value=''>-------</option>
+									{% for steel in steels %}
+                                    <option value="{{ steel.id }}" 
+                                        {% ifequal steel.id id %}
+                                            selected="selected"
+                                        {% endifequal %}
+                                    >{{ steel.id }}-{{ steel.name }}
+                                    </option>
+									{% endfor %}
+                                </select>
+                                <input id="id_steel_list" type="checkbox" {% if id %}checked=true{% endif %}>选
+                                <span>&nbsp;类型:</span>
+					            <input class="input-medium" id="id_type" size="12" name="type" type="text" value="{{ type }}"/>
+                                &nbsp;
+								<span>规格:</span>
+					            <input class="input-small" id="id_high_str" size="12" name="high_str" type="text" value="{{ high_str }}"/>
+  
+                                <input type="submit" id="id_steel_search" value="查询" class="btn btn-primary" />
+                                &nbsp;
+								<span>符合条件:{{ count }}</span>
+							</form>
+						</div>
+
+					<table class="table table-striped table-bordered table-advance table-hover">
+                            <thead>
+                                <tr>
+                                    <th>钢铁名称</th>
+                                    <th>规格</th>
+                                    <th>长度</th>
+                                    <th>宽度</th>
+                                    <th>有票成本</th>
+                                    <th>无票成本</th>
+                                    <th>有票价</th>
+                                    <th>无票价</th>
+                                    <th>数量(件)</th>
+                                    <th>散货数量</th>
+                                    <th>重量(吨)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% if steel_list and steel_list.count > 0 %}
+                                	{% for steel in steel_list %}
+                                    <tr {% if id %}class="success"{% endif %}>
+                                    <td>
+                                        <span class="label label-info">{{ steel.id }}</span>
+                                        
+                                        <span class="label label-warning">
+                                            {{ steel.type }}
+                                        </span>
+                                        &nbsp;
+                                        <a href="#"
+                                            class="steel-content" 
+                            		        data-toggle="popover" 
+                            	        	data-placement="right" 
+                                            data-content="<p class='muted'>
+                                            钢铁ID：{{ steel.id|safe|slice:':100' }} &nbsp;
+                                            钢铁名称：{{ steel.name|safe|slice:":100" }}<br>
+                                            钢铁类型：{{ steel.type|safe|slice:':100' }}<br>
+                                            钢铁规格：{{ steel.high_str|safe|slice:":100" }}<br>
+                                            钢铁长度：{{ steel.len_str|safe|slice:":100" }}<br>
+                                            钢铁宽度：{{ steel.wid_str|safe|slice:":100" }}<br>
+                                            创建时间：{{ steel.create_time|date:"Y-m-d" }}<br>
+                                            </p>" 
+                            		        title="{{ steel.name }}" 
+                                            data-original-title="预览"
+                                            >{{ steel.name|safe|slice:":20" }}
+                                        </a>
+                                    </td>
+                                    <td style="text-align:right;">
+                                        {{ steel.high_str|floatformat:2|intcomma }}
+                                    </td>
+                                    <td style="text-align:right;">
+                                        {{ steel.len_str|floatformat:2|intcomma }}
+                                    </td>
+                                    <td style="text-align:right;">
+                                        {{ steel.wid_str|floatformat:2|intcomma }}
+                                    </td>
+                                    <td style="text-align:right;">
+                                        {{ steel.cost_a|floatformat:2|intcomma }}
+                                    </td>
+                                    <td style="text-align:right;">
+                                        {{ steel.cost_b|floatformat:2|intcomma }}
+                                    </td>
+                                    <td style="text-align:right;">
+                                        {{ steel.sell_price_a|floatformat:2|intcomma }}
+                                    </td>
+                                    <td style="text-align:right;">
+                                        {{ steel.sell_price_b|floatformat:2|intcomma }}
+                                    </td>
+                                    <td style="text-align:right;">
+                                        {{ steel.number|intcomma }}
+                                    </td>
+                                    <td style="text-align:right;">
+                                        {{ steel.retail_number|intcomma }}
+                                    </td>
+                                    <td style="text-align:right;">
+                                        {{ steel.weight|floatformat:3|intcomma }}
+                                    </tr>
+                                	{% endfor %}
+                                {% else %}
+                                <tr>
+                                    <td colspan="12">
+                                    	<div align="center">暂无数据</a></div>
+                                    </td>
+                                </tr>
+                                {% endif %}
+                            </tbody>
+						</table>
+						<div class="pagination" align="right">
+	                        <ul>
+	                            {% if steel_list.has_previous %}
+	                            <li>
+                                <a href="?&page={{ steel_list.previous_page_number }}{% if id %}&id={{ id }}{% endif %}{% if name %}&name={{ name }}{% endif %}{% if type %}&type={{ type }}{% endif %}">
+	                            	上一页 
+	                            </a></li>
+	                            {% else %}
+	                            <li class="disabled"><a href="#">上一页</a></li>
+	                            {% endif %}
+	                            <li class="disabled"><a href="#">{{ steel_list.number }}/{{ steel_list.paginator.num_pages }}</a></li>
+	                            {% if steel_list.has_next %}
+                                <li><a href="?&page={{ steel_list.next_page_number }}{% if id %}&id={{ id }}{% endif %}{% if name %}&name={{ name }}{% endif %}{% if type %}&type={{type}}{% endif %}">
+                                   下一页
+                                </a></li>
+                                    {% else %}
+	                            <li class="disabled"><a href="#">下一页</a></li>
+	                            {% endif %}
+	                        </ul>
+	                    </div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+{% endblock %}
+
+{% block foot %}
+<script src="/static/vendors/datepicker/js/bootstrap-datepicker.js"></script>
+<script src="/static/vendors/datepicker/js/locales/bootstrap-datepicker.zh-CN.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){
+        initDatepacker(); 
+        initSteelDropList();
+    $('#id_name').typeahead({
+        source: function (query, process) {
+            var parameter = {'steel_name': query};
+            var name_array = new Array();
+            $.post('/steel/get/', parameter, function (data) {
+                if(data['code'] == 1){
+                    for(var i=0; i<data['steel_list'].length; i++){
+                        name_array[i] = data['steel_list'][i]['name'];
+                    }
+                }
+                process(name_array);
+            });
+        }
+    });
+
+});
+
+function initDatepacker(){
+    $(".date").datepicker({
+        'language' : 'zh-CN'
+    });
+}
+
+function stopSteel(id){
+    var flag = confirm("确定要删除？")
+    if (flag)
+    {
+        return location.href="/steel/stop/?id=" + id
+    }
+}
+
+$(function () {
+        $('.steel-content').popover({
+            html: true,
+            trigger: 'hover',
+    });
+});
+
+
+function initSteelDropList(){
+    if (document.getElementById("id_steel_list").checked) {
+        $("#id_id").removeClass("hide");
+        $("#id_name").hide();
+    }
+    $("#id_steel_list").click(function(){
+        var checked = $(this).is(":checked");
+        if (checked) {
+            $("#id_id").removeClass("hide");
+            $("#id_name").hide();
+        } else {
+            $("#id_id").addClass("hide");
+            $("#id_name").show();
+        }
+    });
+    $("#id_id").change(function(){
+        $("#id_name").val("");
+    });
+    $("#id_name").change(function(){
+        $("#id_id").val("");
+    });
+}
+
+</script>
+{% endblock %}

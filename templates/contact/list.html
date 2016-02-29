@@ -1,0 +1,169 @@
+{% extends "layouts/sidebar.html" %}
+
+{% block head %}
+<link href="/static/vendors/datepicker/css/datepicker.css" rel="stylesheet" />
+{% endblock %}
+
+{% block title %}通讯录列表{% endblock %}
+{% block subtitle %}通讯录列表{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+	<div class="row-fluid">
+		<div class="span12">
+			<ul class="breadcrumb">
+				<li class="active">
+					<a href="/contact/">通讯录列表</a><span class="divider">/<a href="/contact/edit/">创建通讯录</a><span class="divider"></span>
+				</li>
+			</ul>
+			<div class="widget">
+				<div class="widget-title">
+					<h3>通讯录列表</h3>
+				</div>
+                <div class="widget-body">
+                    <div id="filter_div" class="span12" style="min-height:50px;">
+                        <form id="id_contact_search_form" action="" method="get">
+                            <span>通讯录:</span>
+                            <input type="text" class="input-medium" name="name" id="id_name" data-provide="typeahead" autocomplete="off" {% if name %} value="{{ name }}" {% endif %}/>
+                                &nbsp;
+                                <span>类别:</span>
+                                <select id="id_type" name="type" class="input-medium">
+                                    <option value=''>-------</option>
+                                    {% for item in contact_types %}
+                                    <option value="{{ item.id }}"
+                                        {% ifequal item.id type %}
+                                        selected="selected"
+                                        {% endifequal %}
+                                        >{{ item.id }}-{{ item.type }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                                <span>备注:</span>
+                                <input type="text" class="input-medium" name="remark" id="id_remark" data-provide="typeahead" autocomplete="off" {% if remark %} value="{{ remark }}" {% endif %}/>
+                                <input type="submit" id="id_contact_search" value="查询" class="btn btn-primary" />
+                                &nbsp;
+								<span>符合条件人数:{{ count }}</span>
+							</form>
+						</div>
+
+					<table class="table table-striped table-bordered table-advance table-hover">
+                            <thead>
+                                <tr>
+                                    <th>名称</th>
+                                    <th>联系方式</th>
+                                    <th>类别</th>
+                                    <th>状态</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% if item_list and item_list.count > 0 %}
+                                	{% for contact in item_list %}
+                                    <tr {% ifequal contact.contact.id id %}class="success"{% endifequal %}>
+                                    <td>
+                                        <span class="label label-info">{{ contact.id }}</span>
+                                        <a href="#"
+                                            class="contact-content" 
+                            		        data-toggle="popover" 
+                            	        	data-placement="right" 
+                                            data-content="<p class='muted'>
+                                            ID：{{ contact.contact.id|safe|slice:':100' }}<br>
+                                            名称：{{ contact.contact.name|safe|slice:":100" }}<br>
+                                            联系方式：{{ contact.contact.contact|safe|slice:":100" }}<br>
+                                            创建时间：{{ contact.contact.create_time|date:'Y-m-d H:i:s' }}<br>
+                                            备注：{{ contact.contact.remark|safe|slice:'100'}}<br>
+                                            </p>" 
+                            		        title="{{ contact.contact.id }}"
+                                            data-original-title="预览"
+                                            >{{ contact.contact.name|safe|slice:":20" }}
+                                            <br>
+                                        </a>
+                                    </td>
+                                    <td>
+                                        {{ contact.contact.contact }}
+                                    </td>
+                                    <td>
+                                        {{ contact.type.type }}
+                                    </td>
+                                    <td>
+                                    	{% if contact.contact.status == 0 %}
+                                        <span class="label label-important" title="code:0">无效</span>
+                                    	{% elif contact.contact.status == 1 %}
+                                        <span class="label label-success" title="code:1">有效</span>
+                                    	{% else %}
+                                    	<span class="label label-warning" >异常 code: {{ contact_info.status }}</span>
+                                    	{% endif %}	
+                                    </td>
+                                    <td>                                       
+                                        <a href="/contact/edit/?id={{ contact.contact.id }}">编辑</a>
+                                        &nbsp;
+                                        <!---
+                                        <a href="#" id="btn_stop" class="contact_stop" onclick="stopcontact({{ contact.id }})">
+                                            {% if contact.status == 0 %}
+                                            激活
+                                            {% else %}
+                                            停止
+                                            {% endif %}
+                                        </a>
+                                        --->
+                                    </td>
+                                    </tr>
+                                	{% endfor %}
+                                {% else %}
+                                <tr>
+                                    <td colspan="12">
+                                    	<div align="center">暂无数据</a></div>
+                                    </td>
+                                </tr>
+                                {% endif %}
+                            </tbody>
+						</table>
+						<div class="pagination" align="right">
+	                        <ul>
+	                            {% if contact_list.has_previous %}
+	                            <li>
+                                <a href="?&page={{ contact_list.previous_page_number }}{% if id %}&id={{ id }}{% endif %}{% if name %}&name={{ name }}{% endif %}{% if status %}&status={{ status }}{% endif %}{% if remark %}&remark={{ remark }}{% endif %}">
+	                            	上一页 
+	                            </a></li>
+	                            {% else %}
+	                            <li class="disabled"><a href="#">上一页</a></li>
+	                            {% endif %}
+	                            <li class="disabled"><a href="#">{{ contact_list.number }}/{{ contact_list.paginator.num_pages }}</a></li>
+	                            {% if contact_list.has_next %}
+                                <li><a href="?&page={{ contact_list.next_page_number }}{% if id %}&id={{ id }}{% endif %}{% if name %}&name={{ name }}{% endif %}{% if status %}&status={{status}}{% endif %}{% if remark %}&remark={{ remark }}{% endif %}">
+                                   下一页
+                                </a></li>
+                                    {% else %}
+	                            <li class="disabled"><a href="#">下一页</a></li>
+	                            {% endif %}
+	                        </ul>
+	                    </div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+{% endblock %}
+
+{% block foot %}
+<script src="/static/vendors/datepicker/js/bootstrap-datepicker.js"></script>
+<script src="/static/vendors/datepicker/js/locales/bootstrap-datepicker.zh-CN.js"></script>
+<script type="text/javascript">
+function stopcontact(id){
+    var flag = confirm("确定要删除？")
+    if (flag)
+    {
+        return location.href="/contact/stop/?id=" + id
+    }
+}
+
+$(function () {
+        $('.contact-content').popover({
+            html: true,
+            trigger: 'hover',
+    });
+});
+
+</script>
+{% endblock %}

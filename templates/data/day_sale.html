@@ -1,0 +1,218 @@
+{% extends "layouts/sidebar.html" %}
+
+{% block head %}
+<link href="/static/vendors/datepicker/css/datepicker.css" rel="stylesheet" />
+{% load humanize %}
+{% endblock %}
+
+{% block title %}订单列表{% endblock %}
+{% block subtitle %}订单列表{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+	<div class="row-fluid">
+		<div class="span12">
+			<ul class="breadcrumb">
+				<li class="active">
+					<a href="/data/">每日汇总</a><span class="divider">/</span>
+				</li>
+			</ul>
+			<div class="widget">
+				<div class="widget-title">
+					<h3>每日汇总</h3>
+				</div>
+                <div class="widget-body">
+                    <div id="filter_div" class="span12" style="min-height:50px;">
+                        <form id="id_data_search_form" action="" method="get">
+                            <span>日期：</span>
+                            <span class="input-append date" id="startDateDp" data-date="{{ from_date|date:'Y-m-d'}}" data-date-format="yyyy-mm-dd">
+                                <input class="input-small" size="16" name="from_date" type="text" value="{{ from_date|date:'Y-m-d'}}">
+                                <span class="add-on"><i class="icon-th"></i></span>
+                            </span>
+                            &nbsp;&nbsp;至&nbsp;
+                            <span class="input-append date" id="endDateDp" data-date="{{ end_date|date:'Y-m-d'}}" data-date-format="yyyy-mm-dd">
+                                <input class="input-small" size="16" type="text" name="end_date" value="{{ end_date|date:'Y-m-d'}}">
+                                <span class="add-on"><i class="icon-th"></i></span>
+                            </span>
+                            <input type="submit" id="id_data_search" value="查询" class="btn btn-primary" />
+							</form>
+						</div>
+                        <div id="container"></div>
+					<table class="table table-striped table-bdataed table-advance table-hover">
+                            <thead>
+                                <tr>
+                                    <th>日期</th>
+                                    <th>销售额</th>
+                                    <th>成本</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% if order_list and order_list.count > 0 %}
+                                    {% for item in order_list %}
+                                    <tr>
+                                    <td>
+                                        <a href="javascript:void(0)" data-id="{{ item.date|date:'Y-m-d' }}"
+                                            class="data-btn"
+                            		        data-toggle="popover" 
+                            	        	data-placement="right" 
+                                            data-content="<p class='muted'>
+                                            下单时间：{{ item.date|date:'Y-m-d H:i:s' }}<br>
+                                            </p>" 
+                            		        title="{{ item.date }}"
+                                            data-original-title="预览"
+                                            >{{ item.date|date:'Y-m-d' }}
+                                            <br>
+                                        </a>
+                                    </td>
+                                    <td style="text-align:right;">
+                                        {{ item.money|floatformat:2|intcomma }}
+                                    </td>
+                                    <td style="text-align:right;">
+                                        {{ item.cost|floatformat:2|intcomma }}
+                                    </td>
+                                </tr>
+                                <tr class="item_{{ item.date|date:'Y-m-d' }} hide">
+                                    <td colspan="9">
+                                        <table class="table table-striped table-bdataed table-advance table-hover" id="item_{{ item.date|date:'Y-m-d' }}">
+                                            <thead>
+                                                <tr>
+                                                    <th>订单号</th>
+                                                    <th>总价</th>
+                                                    <th>客户</th>
+                                                    <th>日期</th>
+                                                    <th>操作</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                            </tbody>
+                                        </table>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                                {% else %}
+                                <tr>
+                                    <td colspan="12">
+                                    	<div align="center">暂无数据</a></div>
+                                    </td>
+                                </tr>
+                                {% endif %}
+                                
+                            
+                            </tbody>
+						</table>
+						<div class="pagination" align="right">
+	                        <ul>
+	                            {% if order_list.has_previous %}
+	                            <li>
+                                <a href="?&page={{ order_list.previous_page_number }}{% if from_date %}&from_date={{ from_date|date:'Y-m-d' }}{% endif %}{% if end_date %}&end_date={{ end_date|date:'Y-m-d' }}{% endif %}">
+	                            	上一页 
+	                            </a></li>
+	                            {% else %}
+	                            <li class="disabled"><a href="#">上一页</a></li>
+	                            {% endif %}
+	                            <li class="disabled"><a href="#">{{ order_list.number }}/{{ order_list.paginator.num_pages }}</a></li>
+	                            {% if order_list.has_next %}
+                                <li><a href="?&page={{ order_list.next_page_number }}{% if from_date %}&from_date={{ from_date|date:'Y-m-d' }}{% endif %}{% if end_date %}&end_date={{ end_date|date:'Y-m-d' }}{% endif %}">
+                                   下一页
+                                </a></li>
+                                    {% else %}
+	                            <li class="disabled"><a href="#">下一页</a></li>
+	                            {% endif %}
+	                        </ul>
+	                    </div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+{% endblock %}
+
+{% block foot %}
+<script src="/static/vendors/datepicker/js/bootstrap-datepicker.js"></script>
+<script src="/static/vendors/datepicker/js/locales/bootstrap-datepicker.zh-CN.js"></script>
+<script src="/static/vendors/highcharts/js/highcharts.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){
+    initDatepacker();
+    initdataBtn();
+});
+
+function initdataBtn(){
+    $('.data-btn').click(function(){
+        var date = $(this).attr('data-id');
+        load_data(date);
+        var trs = $('.item_' + date);
+        if(trs.is(":visible")){
+            trs.hide();
+        }else{
+            trs.show();
+        }
+    })
+}
+
+function initDatepacker(){
+    $(".date").datepicker({
+        'language' : 'zh-CN'
+    });
+}
+
+$(function () {
+    $('#container').highcharts({
+        title: {
+            text: '每日汇总'
+        },
+        xAxis: {
+            categories: [{% for date_item in date_list %} '{{ date_item|date:'Y-m-d'}}', {% endfor %}]
+        },
+        yAxis: {
+            title: {
+                text: '金额'
+            }
+        },
+        series: [
+            {
+                name: '销售额',
+                data: [{% for money_item in money_list %} {{ money_item }}, {% endfor %}],
+            },
+            {
+                name: '成本',
+                data: [{% for cost_item in cost_list %} {{ cost_item }}, {% endfor %}],
+            }
+        ]
+    });
+});
+  
+  
+$(function () {
+        $('.client-content').popover({
+            html: true,
+            trigger: 'hover',
+    });
+});
+
+function load_data(date) {
+    if (date) {
+        var url = "/order/load_data/?date=" + date;
+        $.getJSON(url, function(json) {
+                  var code = Number(json['code']);
+                  if (code == 1) {
+                  var data_list = json['data'];
+                  var s = "";
+                  for(var i = 0; i < data_list.length; i ++){
+                  
+                  s += "<tr class='item_" + data_list[i]['order_date'] + "'>"
+                  + "<td>" + data_list[i]['oid'] + "</td>"
+                  + "<td>" + data_list[i]['total_price'] + "</td>"
+                  + "<td>" + data_list[i]['client'] + "</td>"
+                  + "<td>" + data_list[i]['order_date'] + "</td>"
+                  + "<td><a href='/order/?oid=" + data_list[i]['oid'] + "'>详情</a></td>"
+                  + "</tr>";
+                  };
+                  $("#item_" + date + ">tbody").empty().append(s);
+                  }
+                  }).error(function() { alert("check update error"); });
+    }
+}
+</script>
+{% endblock %}

@@ -1,0 +1,91 @@
+{% extends "layouts/sidebar.html" %}
+
+{% block head %}
+<link href="/static/vendors/datepicker/css/datepicker.css" rel="stylesheet" />
+{% endblock %}
+
+{% block title %}{% if client %}编辑{% else %}创建{% endif %}客户信息{% endblock %}
+{% block subtitle %}{% if client %}编辑{% else %}创建{% endif %}客户信息{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+	<div class="row-fluid">
+		<div class="span12">
+			<ul class="breadcrumb">
+				<li>
+					<a href="/client/">客户列表</a><span class="divider">/</span>
+				</li>
+				<li class="active">
+					{% if client %}编辑{% else %}创建{% endif %}
+				</li>
+			</ul>
+			<div class="widget">
+				<div class="widget-title">
+                    <h3>{% if client %}编辑{% else %}创建{% endif %}客户信息</h3>
+				</div>
+				<div class="widget-body">
+					<form id="edit_form" action="" method="post" enctype="multipart/form-data" class="form-horizontal">
+                        <legend>基本信息</legend>
+                        <div class="control-group">
+                            <label class="control-label" for="id_name" >客户名称:</label>
+							<div class="controls">
+                                {{ form.name }}(客户名字必须唯一)
+                            </div>
+							{% if form.name.errors %}
+							<div class="alert alert-error" style="margin:10px 180px;width:170px;">
+								{% for error in form.name.errors %}
+								<div>{{ error|escape }}</div>
+								{% endfor %}
+							</div>
+							{% endif %}
+                        </div>						
+                        <div class="control-group">
+                            <label class="control-label" for="id_contact" >联系方式:</label>
+							<div class="controls">
+                                {{ form.contact }}
+                            </div>
+                            {% if form.contact.errors %}
+							<div class="alert alert-error" style="margin:10px 180px;width:170px;">
+								{% for error in form.contact.errors %}
+								<div>{{ error|escape }}</div>
+								{% endfor %}
+							</div>
+							{% endif %}
+						</div>
+						<div class="control-group">
+                            <label class="control-label" for="id_status" >状态:</label>
+							<div class="controls">
+                                {{ form.status }}
+                            </div>
+                            {% if form.status.errors %}
+							<div class="alert alert-error" style="margin:10px 180px;width:170px;">
+								{% for error in form.status.errors %}
+								<div>{{ error|escape }}</div>
+								{% endfor %}
+							</div>
+							{% endif %}
+						{% if client %}
+						<div class="control-group">
+							<label class="control-label" for="id_date">创建时间:</label>
+							<div class="controls">
+								<p style="margin-top: 8px">{{ client.create_time|date:'Y-m-d H:i:s' }}</p>
+							</div>
+						</div>
+                        {% endif %}
+                    	<div class="form-actions">
+							<button id="submit_btn" type="submit" class="btn btn-primary">
+								确定
+							</button>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+{% endblock %}
+
+{% block foot %}
+<script src="/static/vendors/datepicker/js/bootstrap-datepicker.js"></script>
+<script src="/static/vendors/datepicker/js/locales/bootstrap-datepicker.zh-CN.js"></script>
+{% endblock %}

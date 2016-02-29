@@ -1,0 +1,137 @@
+{% extends "layouts/base.html" %}
+
+{% block body %}
+<div class="row-fluid">
+	<div id="sidebar" class="sidebar-nav nav-collapse collapse">
+		<ul class="nav nav-list bs-docs-sidenav">
+            <li class="has-sub{% if request.path|slice:":6" == "/home/" %} active{% endif %}">
+                <a href="###" class="nav-header">
+                    <i class="icon-home icon-white"></i> 首页
+                    <span class="arrow {% if request.path|slice:":6" == "/home/" %}open{% else %}close{% endif %}"></span>
+                </a>
+                <ul class="sub" style="{% if request.path|slice:":6" == "/home/" %}display:block;{% else %}display:none{% endif %}">
+                    <li {% if request.path == "/home/dashboard/" %}class="active"{% endif %}><a class="" href="/home/dashboard/">dashboard</a></li>
+                </ul>
+            </li>
+        </ul>
+		<ul class="nav nav-list bs-docs-sidenav">
+            <li class="has-sub{% if request.path|slice:":6" == "/data/" %} active{% endif %}">
+                <a href="###" class="nav-header">
+                    <i class="icon-signal icon-white"></i> 数据相关
+                    <span class="arrow {% if request.path|slice:":6" == "/data/" %}open{% else %}close{% endif %}"></span>
+                </a>
+                <ul class="sub" style="{% if request.path|slice:":6" == "/data/" %}display:block;{% else %}display:none{% endif %}">
+                    <li {% if request.path == "/data/day/" %}class="active"{% endif %}><a class="" href="/data/day/">每日汇总</a></li>
+                    <li {% if request.path == "/data/steel/" %}class="active"{% endif %}><a class="" href="/data/steel/">钢铁汇总</a></li>
+                </ul>
+            </li>
+        </ul>
+        <ul class="nav nav-list bs-docs-sidenav">
+            <li class="has-sub{% if request.path|slice:":7" == "/steel/" %} active{% endif %}">
+                <a href="###" class="nav-header">
+                    <i class="icon-star icon-white"></i> 钢铁相关
+                    <span class="arrow {% if request.path|slice:":7" == "/steel/" %}open{% else %}close{% endif %}"></span>
+                </a>
+                <ul class="sub" style="{% if request.path|slice:":7" == "/steel/" %}display:block;{% else %}display:none{% endif %}">
+                    <li {% if request.path == "/steel/" %}class="active"{% endif %}><a class="" href="/steel/">钢铁列表</a></li>
+                    <li {% if request.path == "/steel/edit/" %}class="active"{% endif %}><a class="" href="/steel/edit/">编辑钢铁</a></li>
+                    <li {% if request.path == "/steel/rule/" %}class="active"{% endif %}><a class="" href="/steel/rule/">规则列表</a></li>
+                    <li {% if request.path == "/steel/rule/edit/" %}class="active"{% endif %}><a class="" href="/steel/rule/edit/">编辑规则</a></li>
+                </ul>
+            </li>
+        </ul>
+        <ul class="nav nav-list bs-docs-sidenav">
+            <li class="has-sub{% if request.path|slice:":7" == "/order/" %} active{% endif %}">
+                <a href="###" class="nav-header">
+                    <i class="icon-minus icon-white"></i> 销售相关
+                    <span class="arrow {% if request.path|slice:":7" == "/order/" %}open{% else %}close{% endif %}"></span>
+                </a>
+                <ul class="sub" style="{% if request.path|slice:":7" == "/order/" %}display:block;{% else %}display:none{% endif %}">
+                    <li {% if request.path == "/order/" %}class="active"{% endif %}><a class="" href="/order/">销售订单</a></li>
+                    <li {% if request.path == "/order/add/" %}class="active"{% endif %}><a class="" href="/order/add/">添加订单</a></li>
+                </ul>
+            </li>
+        </ul>
+        <ul class="nav nav-list bs-docs-sidenav">
+            <li class="has-sub{% if request.path|slice:":7" == "/batch/" %} active{% endif %}">
+                <a href="###" class="nav-header">
+                    <i class="icon-plus icon-white"></i> 进货相关
+                    <span class="arrow {% if request.path|slice:":7" == "/batch/" %}open{% else %}close{% endif %}"></span>
+                </a>
+                <ul class="sub" style="{% if request.path|slice:":7" == "/batch/" %}display:block;{% else %}display:none{% endif %}">
+                    <li {% if request.path == "/batch/" %}class="active"{% endif %}><a class="" href="/batch/">进货列表</a></li>
+                    <li {% if request.path == "/batch/add/" %}class="active"{% endif %}><a class="" href="/batch/add/">添加进货</a></li>
+                </ul>
+            </li>
+        </ul>
+        <ul class="nav nav-list bs-docs-sidenav">
+            <li class="has-sub{% if request.path|slice:":8" == "/retail/" %} active{% endif %}">
+                <a href="###" class="nav-header">
+                    <i class="icon-asterisk icon-white"></i> 散货相关
+                    <span class="arrow {% if request.path|slice:":8" == "/retail/" %}open{% else %}close{% endif %}"></span>
+                </a>
+                <ul class="sub" style="{% if request.path|slice:":8" == "/retail/" %}display:block;{% else %}display:none{% endif %}">
+                    <li {% if request.path == "/retail/" %}class="active"{% endif %}><a class="" href="/retail/">散货列表</a></li>
+                    <li {% if request.path == "/retail/add/" %}class="active"{% endif %}><a class="" href="/retail/add/">添加散货</a></li>
+                </ul>
+            </li>
+        </ul>
+        <ul class="nav nav-list bs-docs-sidenav">
+            <li class="has-sub{% if request.path|slice:":8" == "/client/" %} active{% endif %}">
+                <a href="###" class="nav-header">
+                    <i class="icon-user icon-white"></i> 客户相关
+                    <span class="arrow {% if request.path|slice:":8" == "/client/" %}open{% else %}close{% endif %}"></span>
+                </a>
+                <ul class="sub" style="{% if request.path|slice:":8" == "/client/" %}display:block;{% else %}display:none{% endif %}">
+                    <li {% if request.path == "/client/" %}class="active"{% endif %}><a class="" href="/client/">客户列表</a></li>
+                    <li {% if request.path == "/client/edit/" %}class="active"{% endif %}><a class="" href="/client/edit/">编辑客户</a></li>
+                </ul>
+            </li>
+        </ul>
+        <ul class="nav nav-list bs-docs-sidenav">
+            <li class="has-sub{% if request.path|slice:":10" == "/supplier/" %} active{% endif %}">
+                <a href="###" class="nav-header">
+                    <i class="icon-user icon-white"></i> 进货商
+                    <span class="arrow {% if request.path|slice:":10" == "/supplier/" %}open{% else %}close{% endif %}"></span>
+                </a>
+                <ul class="sub" style="{% if request.path|slice:":10" == "/supplier/" %}display:block;{% else %}display:none{% endif %}">
+                    <li {% if request.path == "/supplier/" %}class="active"{% endif %}><a class="" href="/supplier/">进货商列表</a></li>
+                    <li {% if request.path == "/supplier/edit/" %}class="active"{% endif %}><a class="" href="/supplier/edit/">编辑进货商</a></li>
+                </ul>
+            </li>
+        </ul>
+        <ul class="nav nav-list bs-docs-sidenav">
+            <li class="has-sub{% if request.path|slice:":9" == "/contact/" %} active{% endif %}">
+                <a href="###" class="nav-header">
+                    <i class="icon-user icon-white"></i> 通讯录
+                    <span class="arrow {% if request.path|slice:":9" == "/contact/" %}open{% else %}close{% endif %}"></span>
+                </a>
+                <ul class="sub" style="{% if request.path|slice:":9" == "/contact/" %}display:block;{% else %}display:none{% endif %}">
+                    <li {% if request.path == "/contact/" %}class="active"{% endif %}><a class="" href="/contact/">通讯录</a></li>
+                    <li {% if request.path == "/contact/edit/" %}class="active"{% endif %}><a class="" href="/contact/edit/">编辑</a></li>
+                    <li {% if request.path == "/contact/type/" %}class="active"{% endif %}><a class="" href="/contact/type/">类型列表</a></li>
+                    <li {% if request.path == "/contact/type/edit/" %}class="active"{% endif %}><a class="" href="/contact/type/edit/">类型编辑</a></li>
+                </ul>
+            </li>
+        </ul>
+ 	</div>
+	<div id="content">
+		{% block content %}{% endblock %}
+	</div>
+</div>
+{% endblock %}
+{% block sidebar_js %}
+<script>
+    $(document).ready(function(){
+        $('a.nav-header').click(function(){
+            if ($(this).next().is(':hidden')) {
+                $(this).find('span.arrow').removeClass('open');
+                $(this).next().slideDown('fast');
+            } else {
+                $(this).find('span.arrow').addClass('open');
+                $(this).next().slideUp('fast');
+            }
+        });
+    });
+</script>
+{% endblock %}

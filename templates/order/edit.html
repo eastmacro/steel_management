@@ -1,0 +1,94 @@
+{% extends "layouts/sidebar.html" %}
+
+{% block head %}
+<link href="/static/vendors/datepicker/css/datepicker.css" rel="stylesheet" />
+{% endblock %}
+
+{% block title %}{% if order_item %}编辑{% else %}创建{% endif %}销售订单{% endblock %}
+{% block subtitle %}{% if order_item %}编辑{% else %}创建{% endif %}销售订单{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+	<div class="row-fluid">
+		<div class="span12">
+			<ul class="breadcrumb">
+				<li>
+					<a href="/order_item/">销售订单列表</a><span class="divider">/</span>
+				</li>
+				<li class="active">
+					{% if order_item %}编辑{% else %}创建{% endif %}
+				</li>
+			</ul>
+			<div class="widget">
+				<div class="widget-title">
+                    <h3>{% if order_item %}编辑{% else %}创建{% endif %}销售订单</h3>
+				</div>
+				<div class="widget-body">
+					<form id="edit_form" action="" method="post" enctype="multipart/form-data" class="form-horizontal">
+                        
+                        <legend>基本信息</legend>
+                        <div class="control-group">
+                            <label class="control-label" for="id_oid" >订单号:</label>
+                            <div class="controls">
+                                <input type='text' value="{{ order_item.oid }}" name="oid" id="id_oid" data-provide="typeahead" autocomplete='off' readonly="readonly"/>
+                            </div>
+                        </div>
+                        <div class="control-group">
+                            <label class="control-label" for="id_sid" >钢铁名称:</label>
+							<div class="controls">
+                                <select id="id_sid" name="sid" >
+                                    {% for steel in steels %}
+                                    <option value="{{ steel.id }}"
+                                        {% ifequal steel.id order_item.sid %}
+                                        selected="selected"
+                                        {% endifequal %}
+                                        >{{ steel.name }}
+                                    </option>
+                                    
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="control-group">
+                            <label class="control-label" for="id_unit_price" >单价:</label>
+							<div class="controls">
+                                {{ form.unit_price }}￥
+                            </div>
+                            {% if form.unit_price.errors %}
+							<div class="alert alert-error" style="margin:10px 180px;width:170px;">
+								{% for error in form.unit_price.errors %}
+								<div>{{ error|escape }}</div>
+								{% endfor %}
+							</div>
+							{% endif %}
+						</div>
+                        <div class="control-group">
+                            <label class="control-label" for="id_number" >件数:</label>
+							<div class="controls">
+                                {{ form.number }}
+                            </div>
+                            {% if form.number.errors %}
+							<div class="alert alert-error" style="margin:10px 180px;width:170px;">
+								{% for error in form.number.errors %}
+								<div>{{ error|escape }}</div>
+								{% endfor %}
+							</div>
+							{% endif %}
+						</div>
+                    	<div class="form-actions">
+							<button id="submit_btn" type="submit" class="btn btn-primary">
+								保存
+							</button>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+{% endblock %}
+
+{% block foot %}
+<script src="/static/vendors/datepicker/js/bootstrap-datepicker.js"></script>
+<script src="/static/vendors/datepicker/js/locales/bootstrap-datepicker.zh-CN.js"></script>
+{% endblock %}

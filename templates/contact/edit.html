@@ -1,0 +1,121 @@
+{% extends "layouts/sidebar.html" %}
+
+{% block head %}
+<link href="/static/vendors/datepicker/css/datepicker.css" rel="stylesheet" />
+{% endblock %}
+
+{% block title %}{% if contact %}编辑{% else %}创建{% endif %}通讯录信息{% endblock %}
+{% block subtitle %}{% if contact %}编辑{% else %}创建{% endif %}通讯录信息{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+	<div class="row-fluid">
+		<div class="span12">
+			<ul class="breadcrumb">
+				<li>
+					<a href="/contact/">通讯录列表</a><span class="divider">/</span>
+				</li>
+				<li class="active">
+					{% if contact %}编辑{% else %}创建{% endif %}
+				</li>
+			</ul>
+			<div class="widget">
+				<div class="widget-title">
+                    <h3>{% if contact %}编辑{% else %}创建{% endif %}通讯录信息</h3>
+				</div>
+				<div class="widget-body">
+					<form id="edit_form" action="" method="post" enctype="multipart/form-data" class="form-horizontal">
+                        <legend>基本信息</legend>
+                        <div class="control-group">
+                            <label class="control-label" for="id_name" >名称:</label>
+							<div class="controls">
+                                {{ form.name }}(名字必须唯一)
+                            </div>
+							{% if form.name.errors %}
+							<div class="alert alert-error" style="margin:10px 180px;width:170px;">
+								{% for error in form.name.errors %}
+								<div>{{ error|escape }}</div>
+								{% endfor %}
+							</div>
+							{% endif %}
+                        </div>						
+                        <div class="control-group">
+                            <label class="control-label" for="id_contact" >联系方式:</label>
+							<div class="controls">
+                                {{ form.contact }}
+                            </div>
+                            {% if form.contact.errors %}
+							<div class="alert alert-error" style="margin:10px 180px;width:170px;">
+								{% for error in form.contact.errors %}
+								<div>{{ error|escape }}</div>
+								{% endfor %}
+							</div>
+							{% endif %}
+						</div>
+                        <div class="control-group">
+                            <label class="control-label" for="id_type">类型</label>
+                            <div class="controls">
+                                {% if type %}
+                                <select id="id_type" name="type">
+                                    {% for item in contact_types %}
+                                    
+                                    <option value="{{ item.id }}"
+                                        {% ifequal item.id type %} selected="selected"{% endifequal %}
+                                        >{{ item.id }}-{{ item.type }}
+                                    </option>
+                                    
+                                    {% endfor %}
+                                </select>
+                                {% else %}
+                                <select id="id_type" name="type">
+                                    <option value=''>-------</option>
+                                    {% for item in contact_types %}
+                                    <option value="{{ item.id }}"
+                                        {% ifequal item.id type %}
+                                        selected="selected"
+                                        {% endifequal %}
+                                        >{{ item.id }}-{{ item.type }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="control-group">
+                            <label class="control-label" for="id_remark" >备注:</label>
+                            <div class="controls">
+                                {{ form.remark }}
+                            </div>
+                            {% if form.remark.errors %}
+                            <div class="alert alert-error" style="margin:10px 180px;width:170px;">
+                                {% for error in form.remark.errors %}
+                                <div>{{ error|escape }}</div>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+						{% if contact %}
+						<div class="control-group">
+							<label class="control-label" for="id_date">创建时间:</label>
+							<div class="controls">
+								<p style="margin-top: 8px">{{ contact.create_time|date:'Y-m-d H:i:s' }}</p>
+							</div>
+						</div>
+                        {% endif %}
+                    	<div class="form-actions">
+							<button id="submit_btn" type="submit" class="btn btn-primary">
+								确定
+							</button>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+{% endblock %}
+
+{% block foot %}
+<script src="/static/vendors/datepicker/js/bootstrap-datepicker.js"></script>
+<script src="/static/vendors/datepicker/js/locales/bootstrap-datepicker.zh-CN.js"></script>
+{% endblock %}

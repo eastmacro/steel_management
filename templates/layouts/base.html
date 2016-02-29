@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="cn">
+<head>
+    <meta charset="utf-8">
+    <title>{% block title %}{% endblock %} - 钢管</title>
+    <!--
+    <link rel="stylesheet" href="http://lib.sinaapp.com/js/bootstrap/2.2.1/css/bootstrap.min.css" />
+    -->
+    <link rel="stylesheet" href="/static/vendors/bootstrap/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="/static/css/common.css" />
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    {% block head %}{% endblock %}
+</head>
+
+<body>
+    <div id="header" class="navbar navbar-inverse navbar-fixed-top">
+        <div class="navbar-inner">
+            <div class="container-fluid">
+				<a class="brand" href="/">钢管.<span class="sologn">后台</span></a>
+                <div class="top-nav">
+                    <ul class="nav pull-left sub-title">
+                        <li><a href="#">{% block subtitle %}{% endblock %}</a></li>
+                    </ul>
+                    <ul id="top_menu" class="nav pull-right">
+                        {% if user.is_authenticated %}
+                        <li><a href="#">{{user.username}}</a></li>
+                        <li class="divider-vertical hidden-phone hidden-tablet"></li>
+                        <li><a href="/account/logout/">登出</a></li>
+                        {% else %}
+                        <li><a href="/account/login/" style="margin-left:10px;">登入</a></li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="main">
+        {% block body %}{% endblock %}
+    </div>
+    <script type="text/javascript" src="/static/vendors/jquery/jquery-1.11.0.min.js"></script>
+    <script type="text/javascript" src="/static/vendors/bootstrap/js/bootstrap.min.js"></script>
+    {% block sidebar_js %}{% endblock %}
+    {% block foot %}{% endblock %}
+</body>
+</html>
